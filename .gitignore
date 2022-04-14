@@ -1,0 +1,26 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/frontend/movies/node_modules
+/frontend/movies/.pnp
+/frontend/movies/.pnp.js
+
+# testing
+/frontend/movies/coverage
+
+# production
+#/frontend/movies/build
+
+# misc
+/frontend/movies/.DS_Store
+/frontend/movies/.env.local
+/frontend/movies/.env.development.local
+/frontend/movies/.env.test.local
+/frontend/movies/.env.production.local
+
+/frontend/movies/npm-debug.log*
+/frontend/movies/yarn-debug.log*
+/frontend/movies/yarn-error.log*
+
+/backend/__pychache__/
+/backend/venv
