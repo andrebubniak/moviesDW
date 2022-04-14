@@ -1,141 +1,132 @@
-
-import React, { Component, useState } from "react";
-import { Link, useNavigate, useParams, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import MoviesDataService from "../services/moviesDataService";
 
 
+function MovieForm()
+{
+    const [movieTitle, setMovieTitle] = useState('')
+    const [movieSynopsis, setMovieSynopsis] = useState('')
+    const [movieDirector, setMovieDirector] = useState('')
 
-class MovieForm extends Component
-{   
-    constructor(props)
-    {
-        super(props)
+    let { movieId } = useParams()
+    let navigate = useNavigate()
 
-        this.saveMovie = this.saveMovie.bind(this)
-
-        this.state = {
-            movieTitle: '',
-            movieDirector: '',
-            movieSynopsis: '',
-            redirectURL: ''
-        }
-
-        let { movieId } = this.props.match.params
-
-        //if it has a movie id on path
-        if(movieId !== undefined)
+    useEffect(() =>{
+        
+        async function fetchData()
         {
-            MoviesDataService.get(movieId).then((response) =>{
-                this.setState({
-                    movieTitle: response.data['title'],
-                    movieDirector: response.data['director'],
-                    movieSynopsis: response.data['synopsis']
+            //if it has a movie id on path
+            if(movieId !== undefined)
+            {
+                await MoviesDataService.get(movieId).then((response) =>{
+                    setMovieTitle( response.data['title'] )
+                    setMovieSynopsis( response.data['synopsis'] )
+                    setMovieDirector( response.data['director'] )
                 })
-            })
-            .catch(e => {
-                alert('error: ' + e)
-            })
+                .catch(e => {
+                    alert('error: ' + e)
+                })
+            }
         }
-    }
 
-    saveMovie()
+        fetchData()
+
+    }, [movieId])
+    
+
+    let saveMovie = async () => 
     {
         const movie = {
-            title: this.state.movieTitle,
-            director: this.state.movieDirector,
-            synopsis: this.state.movieSynopsis
+            title: movieTitle,
+            director: movieDirector,
+            synopsis: movieSynopsis
         }
 
-        console.log("MOVIE => " + JSON.stringify(movie))
-
-        let { movieId } = this.props.match.params
         if(movieId === undefined)
         {
-            MoviesDataService.create(movie).then(this.setState({redirectURL: '/movies'}))
-            .catch(e =>
+            try
+            {
+                await MoviesDataService.create(movie)
+                navigate('/movies')
+            }
+            catch(e)
             {
                 alert('error: ' + e)
-            })
+            }           
         }
 
         else
         {
-            MoviesDataService.update(movieId, movie).then((response) =>{
-                if(response.status === 200)
-                    this.setState({redirectURL: '/movies'})
-            })
-            .catch(e =>
+            try
+            {
+                await MoviesDataService.update(movieId, movie)
+                navigate('/movies')
+            }
+            catch(e)
             {
                 alert('error: ' + e)
-            })
+            }         
         }
-
     }
- 
-    render()
-    {
-        if(this.state.redirectURL !== '')
-            return <Navigate to={this.state.redirectURL}></Navigate>
 
-        return (
+    return (
             
-            <div>
-                <div className="container mt-3">
-                    <div className="row">
-                        <div className="card col-md-6 offset-md-3 offset-md">
-                            <h2 className="text-center">Filme</h2>
-                            <div className="card-body">
-                                <form>
-                                    <div>
-                                        <label className="mb-1">Título:</label>
-                                        <input 
-                                            type="text"
-                                            maxLength={255}
-                                            placeholder="Título" 
-                                            className="form-control" 
-                                            defaultValue={this.state.movieTitle}
-                                            onChange={(event) => this.setState({movieTitle: event.target.value})}>
-                                        </input>  
-                                    </div>
-                                    <div className="mt-3">
-                                        <label className="mb-1">Sinopse:</label>
-                                        <input 
-                                            maxLength={255}
-                                            placeholder="Sinopse" 
-                                            className="form-control" 
-                                            defaultValue={this.state.movieSynopsis} 
-                                            onChange={(event) => this.setState({movieSynopsis: event.target.value})} >
-                                        </input>
-                                    </div>
-                                    <div className="mt-3">
-                                        <label className="mb-1">Diretor:</label>
-                                        <input 
-                                            maxLength={255}
-                                            placeholder="Diretor" 
-                                            className="form-control" 
-                                            defaultValue={this.state.movieDirector}
-                                            onChange={(event) => this.setState({movieDirector: event.target.value})} >
-                                        </input>
-                                    </div>
-                                </form>
-                                <div className="mt-3">
-                                    <button
-                                        className="btn btn-primary"
-                                        onClick={this.saveMovie} >Salvar
-                                    </button>
-                                    <Link 
-                                        to={'/movies'} 
-                                        className="btn btn-warning" style={{marginLeft: '10px'}}>Voltar
-                                    </Link>
+        <div>
+            <div className="container mt-3">
+                <div className="row">
+                    <div className="card col-md-6 offset-md-3 offset-md">
+                        <h2 className="text-center">Filme</h2>
+                        <div className="card-body">
+                            <form>
+                                <div>
+                                    <label className="mb-1">Título:</label>
+                                    <input 
+                                        type="text"
+                                        maxLength={255}
+                                        placeholder="Título" 
+                                        className="form-control" 
+                                        value={movieTitle}
+                                        onChange={(event) => setMovieTitle(event.target.value)}>
+                                    </input>  
                                 </div>
+                                <div className="mt-3">
+                                    <label className="mb-1">Diretor:</label>
+                                    <input 
+                                        maxLength={255}
+                                        placeholder="Diretor" 
+                                        className="form-control" 
+                                        value={movieDirector}
+                                        onChange={(event) => setMovieDirector(event.target.value)}>
+                                    </input>
+                                </div>
+                                <div className="mt-3">
+                                    <label className="mb-1">Sinopse:</label>
+                                    <input 
+                                        maxLength={255}
+                                        placeholder="Sinopse" 
+                                        className="form-control" 
+                                        value={movieSynopsis}
+                                        onChange={(event) => setMovieSynopsis(event.target.value)}>
+                                    </input>
+                                </div>
+                            </form>
+                            <div className="mt-3">
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={saveMovie}>Salvar
+                                </button>
+                                <Link 
+                                    to={'/movies'} 
+                                    className="btn btn-warning" style={{marginLeft: '10px'}}>Voltar
+                                </Link>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        )
-    }
-
+        </div>
+    )
 }
 
 export default MovieForm

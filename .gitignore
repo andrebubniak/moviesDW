@@ -9,7 +9,7 @@
 /frontend/movies/coverage
 
 # production
-#/frontend/movies/build
+/frontend/movies/build
 
 # misc
 /frontend/movies/.DS_Store
